@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: Arial, sans-serif; font-size: 12px; color: #1a1a2e; margin: 40px; }
+  .header { background: #1a1a2e; color: white; padding: 24px; border-radius: 4px; margin-bottom: 30px; }
+  .header h1 { margin: 0 0 4px; font-size: 22px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .stat-box { background: #f5f5f5; border-left: 4px solid #e94560; padding: 12px; border-radius: 4px; }
+  .stat-box .val { font-size: 20px; font-weight: bold; color: #e94560; }
+  .section { margin-bottom: 24px; }
+  .section h2 { font-size: 14px; border-bottom: 2px solid #1a1a2e; padding-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  th { background: #1a1a2e; color: white; padding: 8px; text-align: left; }
+  td { padding: 7px 8px; border-bottom: 1px solid #e0e0e0; }
+  tr:nth-child(even) { background: #f9f9f9; }
+  .footer { margin-top: 40px; padding-top: 12px; border-top: 1px solid #ddd; font-size: 10px; color: #999; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>ПИРАМИДА — Financial Pyramid Intelligence Report</h1>
+  <p style="margin:4px 0 0;font-size:11px;opacity:0.75">ShadowGuard | {{ report_id }} | {{ generated_at_fmt }}</p>
+</div>
+{% if result %}
+<div class="stat-grid">
+  <div class="stat-box"><div class="val">{{ result.schemes_detected }}</div><div>Schemes Detected</div></div>
+  <div class="stat-box"><div class="val">{{ result.high_risk_schemes }}</div><div>High Risk</div></div>
+  <div class="stat-box"><div class="val">{{ result.total_estimated_victims | int }}</div><div>Est. Victims</div></div>
+  <div class="stat-box"><div class="val">{{ (result.total_funds_at_risk_kzt / 1000000) | round(1) }}M</div><div>KZT at Risk</div></div>
+</div>
+<div class="section">
+  <h2>Detected Schemes</h2>
+  <table>
+    <tr><th>Scheme</th><th>Risk Score</th><th>Max Monthly Return</th><th>Registered</th><th>Est. Victims</th></tr>
+    {% for r in result.results %}
+    <tr>
+      <td>{{ r.scheme_name or r.channel }}</td>
+      <td>{{ r.risk_score }}/100</td>
+      <td>{% if r.promised_return_max %}{{ r.promised_return_max }}%/mo{% else %}N/A{% endif %}</td>
+      <td>{{ "YES" if r.is_registered else "NO ⚠" }}</td>
+      <td>{{ r.estimated_victims | default(0) }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+<div class="footer"><p>Legal basis: Article 217, Criminal Code of Kazakhstan. ShadowGuard Intelligence Platform.</p></div>
+</body>
+</html>

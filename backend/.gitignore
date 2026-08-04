@@ -1,0 +1,180 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+
+# =========================
+# Python Packaging
+# =========================
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+wheels/
+share/python-wheels/
+
+*.egg-info/
+.installed.cfg
+*.egg
+
+pip-wheel-metadata/
+
+# =========================
+# Testing / Coverage
+# =========================
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+
+# =========================
+# Logs
+# =========================
+*.log
+logs/
+
+# =========================
+# Environment Variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# IDEs / Editors
+# =========================
+.vscode/
+.idea/
+
+*.swp
+*.swo
+*.tmp
+*.bak
+
+# =========================
+# OS Files
+# =========================
+.DS_Store
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints/
+
+# =========================
+# Node / React / Vite
+# =========================
+node_modules/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+
+# =========================
+# Docker
+# =========================
+docker-compose.override.yml
+
+# =========================
+# Database Files
+# =========================
+*.db
+*.sqlite
+*.sqlite3
+
+# PostgreSQL
+infra/postgres/data/
+
+# Redis
+infra/redis/data/
+
+# Elasticsearch
+infra/elasticsearch/data/
+
+# MinIO
+infra/minio/data/
+
+# =========================
+# Security
+# =========================
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+*.session
+*.session-journal
+
+# =========================
+# Runtime Artifacts
+# =========================
+tmp/
+tmp/reports/
+tmp/evidence/
+
+reports/
+evidence/
+uploads/
+
+# =========================
+# Celery
+# =========================
+celerybeat-schedule
+celerybeat.pid
+
+# =========================
+# Kubernetes
+# =========================
+*.kubeconfig
+
+# =========================
+# Terraform (future use)
+# =========================
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# =========================
+# Build Artifacts
+# =========================
+*.out
+*.cache
+
+# =========================
+# TypeScript
+# =========================
+*.tsbuildinfo
+
+# =========================
+# Alembic
+# =========================
+# Keep migration scripts tracked
+# DO NOT ignore alembic/versions/*.py

@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shadowguard-redis
+  namespace: shadowguard
+  labels:
+    app: shadowguard-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shadowguard-redis
+  template:
+    metadata:
+      labels:
+        app: shadowguard-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          command:
+            - redis-server
+            - --maxmemory 256mb
+            - --maxmemory-policy allkeys-lru
+            - --appendonly yes
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "300Mi"
+              cpu: "200m"
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+      volumes:
+        - name: redis-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shadowguard-redis
+  namespace: shadowguard
+spec:
+  selector:
+    app: shadowguard-redis
+  ports:
+    - port: 6379
+      targetPort: 6379
+  type: ClusterIP

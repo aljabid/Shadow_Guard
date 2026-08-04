@@ -1,0 +1,21 @@
+version: '3.9'
+
+services:
+  backend:
+    build: ./backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./backend:/app
+    environment:
+      - APP_ENV=development
+
+  frontend:
+    build: ./frontend
+    command: npm run dev -- --host
+    volumes:
+      - ./frontend/src:/app/src
+    environment:
+      - VITE_API_URL=http://localhost:8000
+
+  celery_worker:
+    command: celery -A app.core.celery_app worker --loglevel=debug -Q default,kolkhoz,droper,piramida,shadowbet --concurrency=2

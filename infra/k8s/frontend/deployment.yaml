@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shadowguard-frontend
+  namespace: shadowguard
+  labels:
+    app: shadowguard-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shadowguard-frontend
+  template:
+    metadata:
+      labels:
+        app: shadowguard-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: shadowguard/frontend:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: VITE_API_URL
+              value: "https://shadowguard.afm.kz"
+            - name: VITE_WS_URL
+              value: "wss://shadowguard.afm.kz"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
