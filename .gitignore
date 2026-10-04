@@ -1,0 +1,54 @@
+# Environment
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+dist/
+.cache/
+
+# Docker
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Reports and evidence
+/tmp/reports/
+/tmp/evidence/
+
+# Secrets
+*.pem
+*.key
+*.p12
+*.pfx
+*.session
+*.session-journal
+
+# Dev backups / scratch — not part of the shipped app
+recovery_backup/
+
+# Stray __init__.py accidentally created outside Python packages
+frontend/**/__init__.py
+infra/**/__init__.py
+
+# Database
+*.sql.backup
+
+# OS
+.DS_Store
+Thumbs.db
