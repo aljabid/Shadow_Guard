@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shadowguard-backend
+  namespace: shadowguard
+  labels:
+    app: shadowguard-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shadowguard-backend
+  template:
+    metadata:
+      labels:
+        app: shadowguard-backend
+    spec:
+      containers:
+        - name: backend
+          image: shadowguard/backend:latest
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: shadowguard-config
+            - secretRef:
+                name: shadowguard-secrets
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 20
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shadowguard-celery-worker
+  namespace: shadowguard
+  labels:
+    app: shadowguard-celery-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shadowguard-celery-worker
+  template:
+    metadata:
+      labels:
+        app: shadowguard-celery-worker
+    spec:
+      containers:
+        - name: celery-worker
+          image: shadowguard/backend:latest
+          command:
+            - celery
+            - -A
+            - app.core.celery_app
+            - worker
+            - --loglevel=info
+            - -Q
+            - default,kolkhoz,droper,piramida,shadowbet
+            - --concurrency=4
+          envFrom:
+            - configMapRef:
+                name: shadowguard-config
+            - secretRef:
+                name: shadowguard-secrets
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"

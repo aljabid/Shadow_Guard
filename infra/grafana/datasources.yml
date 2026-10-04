@@ -1,0 +1,27 @@
+apiVersion: 1
+
+datasources:
+  - name: Elasticsearch
+    type: elasticsearch
+    access: proxy
+    url: http://elasticsearch:9200
+    database: "shadowguard-logs-*"
+    jsonData:
+      esVersion: "8.0.0"
+      timeField: "@timestamp"
+      logMessageField: message
+      logLevelField: level
+    isDefault: true
+
+  - name: PostgreSQL
+    type: postgres
+    url: postgres:5432
+    database: shadowguard
+    user: shadowguard
+    secureJsonData:
+      password: shadowguard_dev_password
+    jsonData:
+      sslmode: disable
+      maxOpenConns: 5
+      maxIdleConns: 2
+      connMaxLifetime: 14400
