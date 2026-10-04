@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: Arial, sans-serif; font-size: 12px; color: #1a1a2e; margin: 40px; }
+  .header { border: 2px solid #1a1a2e; padding: 20px; margin-bottom: 30px; text-align: center; }
+  .header h1 { font-size: 16px; margin: 0 0 8px; }
+  .field { margin-bottom: 16px; }
+  .field-label { font-size: 10px; font-weight: bold; text-transform: uppercase; color: #666; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .field-value { font-size: 12px; padding: 8px; background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 3px; }
+  .legal-box { background: #fff3e0; border: 1px solid #f5a623; padding: 12px; border-radius: 4px; margin: 16px 0; }
+  .domain-list { columns: 2; column-gap: 20px; }
+  .domain-item { font-size: 11px; padding: 3px 0; border-bottom: 1px solid #f0f0f0; }
+  .footer { margin-top: 40px; border-top: 1px solid #1a1a2e; padding-top: 8px; font-size: 11px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>OFFICIAL REQUEST FOR DOMAIN BLOCKING</h1>
+  <p>Agency for Financial Monitoring of the Republic of Kazakhstan</p>
+  <p>ShadowGuard Intelligence Platform — Automated Detection Output</p>
+</div>
+<div class="field"><div class="field-label">Case Number</div><div class="field-value">{{ case_number }}</div></div>
+<div class="field"><div class="field-label">Date</div><div class="field-value">{{ request_date }}</div></div>
+<div class="field"><div class="field-label">Submission Target</div><div class="field-value">{{ submission_target }}</div></div>
+<div class="field"><div class="field-label">Evidence Summary</div><div class="field-value">{{ evidence_summary }}</div></div>
+<div class="legal-box">
+  <strong>Legal Basis:</strong><br>
+  {% for basis in legal_basis %}• {{ basis }}<br>{% endfor %}
+</div>
+<div class="field">
+  <div class="field-label">Domains Requested for Blocking ({{ total_domains }} total)</div>
+  <div class="field-value">
+    <div class="domain-list">
+      {% for domain in domains_for_blocking %}<div class="domain-item">{{ domain }}</div>{% endfor %}
+    </div>
+  </div>
+</div>
+<div class="footer"><p>Prepared by: {{ analyst }} | Generated: {{ generated_at }}</p></div>
+</body>
+</html>
