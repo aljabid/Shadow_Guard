@@ -1,0 +1,371 @@
+import { useState } from "react";
+import { useModuleTask } from "@/hooks/useModuleTask";
+import { useModulesStore } from "@/store";
+import TaskStatusBar from "@/components/modules/TaskStatusBar";
+import RiskScoreBadge from "@/components/common/RiskScoreBadge";
+import TimelineChart from "@/components/charts/TimelineChart";
+import SignalBreakdownChart from "@/components/charts/SignalBreakdownChart";
+import EvidencePackageButton from "@/components/reporting/EvidencePackageButton";
+import { Play, RotateCcw, ExternalLink, Activity } from "lucide-react";
+
+function uniqueUrls(urls: any[]): string[] {
+  return Array.from(
+    new Set(
+      urls
+        .filter(Boolean)
+        .map((u) => String(u).trim())
+        .filter(Boolean)
+    )
+  );
+}
+
+function normalizeUrl(value: string): string {
+  if (value.startsWith("http://") || value.startsWith("https://")) return value;
+  if (value.startsWith("@")) return `https://t.me/${value.slice(1)}`;
+  if (!value.includes(".") && !value.includes("/")) return `https://t.me/${value}`;
+  return `https://${value}`;
+}
+
+function getEvidenceUrls(item: any): string[] {
+  const sourceData = item?.source_data || item?.source || {};
+
+  const urls = [
+    item?.url,
+    item?.source_url,
+    item?.exchange_url,
+    item?.website,
+    item?.telegram,
+    item?.support_channel,
+    sourceData?.source_url,
+    ...(item?.evidence_urls || []),
+    ...(sourceData?.evidence_urls || []),
+    ...(sourceData?.telegram_links || []),
+    ...(sourceData?.web_links || []),
+    ...(sourceData?.reddit_links || []),
+    ...(sourceData?.github_links || []),
+    ...(sourceData?.onion_links || []),
+  ].filter(Boolean);
+
+  return uniqueUrls(urls.map((u) => normalizeUrl(String(u))));
+}
+
+function getHealthStatus(score: number) {
+  if (score >= 85) {
+    return {
+      label: "COLLAPSE RISK",
+      icon: "🔴",
+      color: "#ef4444",
+      confidence: "High",
+      probability: Math.min(98, Math.max(85, score - 3)),
+    };
+  }
+
+  if (score >= 70) {
+    return {
+      label: "CRITICAL WARNING",
+      icon: "🟠",
+      color: "#f97316",
+      confidence: "High",
+      probability: Math.min(84, Math.max(70, score - 5)),
+    };
+  }
+
+  if (score >= 40) {
+    return {
+      label: "WATCHLIST",
+      icon: "🟡",
+      color: "#eab308",
+      confidence: "Medium",
+      probability: Math.min(69, Math.max(35, score - 8)),
+    };
+  }
+
+  return {
+    label: "HEALTHY",
+    icon: "🟢",
+    color: "#22c55e",
+    confidence: "Medium",
+    probability: Math.max(5, Math.min(25, score - 2)),
+  };
+}
+
+function formatUpdatedTime(item: any): string {
+  const value =
+    item?.timestamp ||
+    item?.updated_at ||
+    item?.created_at ||
+    item?.source_data?.last_seen ||
+    new Date().toISOString();
+
+  try {
+    return new Date(value).toLocaleTimeString();
+  } catch {
+    return new Date().toLocaleTimeString();
+  }
+}
+
+export default function KolkhozPanel() {
+  const [playback, setPlayback] = useState(true);
+
+  const { run } = useModuleTask("kolkhoz");
+  const { currentTask, isRunning, lastResult } = useModulesStore();
+
+  const handleRun = () =>
+    run({
+      playback_mode: playback,
+    });
+
+  const results: any[] = (lastResult?.results as any[]) || [];
+
+  const focusResult =
+    results.length > 0
+      ? [...results].sort(
+          (a, b) => Number(b.risk_score || 0) - Number(a.risk_score || 0)
+        )[0]
+      : null;
+
+  const evidenceUrls = focusResult ? getEvidenceUrls(focusResult) : [];
+  const health = getHealthStatus(Number(focusResult?.risk_score || 0));
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2
+            className="text-base font-bold"
+            style={{ color: "var(--soc-accent)" }}
+          >
+            KOLKHOZ
+          </h2>
+
+          <p className="text-xs" style={{ color: "var(--soc-muted)" }}>
+            Pre-collapse exchange signal engine
+          </p>
+        </div>
+
+        <EvidencePackageButton
+          moduleId="kolkhoz"
+          taskId={currentTask?.task_id || null}
+        />
+      </div>
+
+      <div className="card mb-4">
+        <div className="flex items-center gap-4 mb-3">
+          <label
+            className="flex items-center gap-2 text-xs cursor-pointer"
+            style={{ color: "var(--soc-text)" }}
+          >
+            <input
+              type="checkbox"
+              checked={playback}
+              onChange={(e) => setPlayback(e.target.checked)}
+            />
+            {playback ? "Playback Demo Mode" : "Live Source Mode"}
+          </label>
+
+          <button
+            onClick={handleRun}
+            disabled={isRunning}
+            className="flex items-center gap-2 px-4 py-1.5 rounded text-xs font-semibold"
+            style={{
+              background: "var(--soc-accent)",
+              color: "white",
+              opacity: isRunning ? 0.6 : 1,
+            }}
+          >
+            {isRunning ? (
+              <RotateCcw size={12} className="animate-spin" />
+            ) : (
+              <Play size={12} />
+            )}
+
+            {isRunning ? "Running..." : playback ? "Run Playback" : "Run Live Scan"}
+          </button>
+        </div>
+
+        <div className="mb-3 text-xs" style={{ color: "var(--soc-muted)" }}>
+          {playback
+            ? "Demo mode uses the RAKS historical playback timeline for judge presentation."
+            : "Live mode scans configured exchange domains, Telegram channels, and wallet sources."}
+        </div>
+
+        <TaskStatusBar task={currentTask || null} isRunning={isRunning} />
+      </div>
+
+      {lastResult && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              {
+                label: "Exchanges Scanned",
+                value: lastResult.total_exchanges_scanned,
+              },
+              {
+                label: "Alerts Fired",
+                value: lastResult.alerts_fired,
+                accent: true,
+              },
+              {
+                label: "Mode",
+                value: String(lastResult.mode).toUpperCase(),
+              },
+            ].map((s) => (
+              <div key={s.label} className="card">
+                <p className="text-xs" style={{ color: "var(--soc-muted)" }}>
+                  {s.label}
+                </p>
+
+                <p
+                  className="text-lg font-bold mt-1"
+                  style={{
+                    color: s.accent ? "var(--soc-accent)" : "var(--soc-text)",
+                  }}
+                >
+                  {String(s.value)}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {focusResult && (
+            <div className="card">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3
+                    className="text-sm font-semibold"
+                    style={{ color: "var(--soc-text)" }}
+                  >
+                    {focusResult.exchange_name || "Unknown Exchange"}
+                  </h3>
+
+                  <p className="text-xs mt-1" style={{ color: "var(--soc-muted)" }}>
+                    Source:{" "}
+                    {focusResult.source_type ||
+                      focusResult.source_data?.source_type ||
+                      "exchange intelligence"}
+                  </p>
+                </div>
+
+                <RiskScoreBadge score={focusResult.risk_score} size="lg" />
+              </div>
+
+              <div
+                className="mb-4 p-3 rounded"
+                style={{
+                  background: "var(--soc-surface-2)",
+                  border: "1px solid var(--soc-border)",
+                }}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p
+                      className="text-xs font-semibold flex items-center gap-2"
+                      style={{ color: "var(--soc-text)" }}
+                    >
+                      <Activity size={13} />
+                      Exchange Health Assessment
+                    </p>
+
+                    <p
+                      className="text-lg font-bold mt-2"
+                      style={{ color: health.color }}
+                    >
+                      {health.icon} {health.label}
+                    </p>
+                  </div>
+
+                  <div className="text-right">
+                    <p className="text-xs" style={{ color: "var(--soc-muted)" }}>
+                      Collapse Probability
+                    </p>
+                    <p
+                      className="text-lg font-bold"
+                      style={{ color: health.color }}
+                    >
+                      {health.probability}%
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 mt-3">
+                  <div>
+                    <p className="text-xs" style={{ color: "var(--soc-muted)" }}>
+                      Confidence
+                    </p>
+                    <p className="text-xs font-semibold" style={{ color: "var(--soc-text)" }}>
+                      {health.confidence}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs" style={{ color: "var(--soc-muted)" }}>
+                      Last Updated
+                    </p>
+                    <p className="text-xs font-semibold" style={{ color: "var(--soc-text)" }}>
+                      {formatUpdatedTime(focusResult)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {evidenceUrls.length > 0 && (
+                <div className="mb-4 flex flex-wrap gap-2">
+                  {evidenceUrls.slice(0, 6).map((url, idx) => (
+                    <a
+                      key={idx}
+                      href={url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-xs underline"
+                      style={{ color: "var(--soc-accent)" }}
+                    >
+                      Open Evidence {idx + 1}
+                      <ExternalLink size={10} />
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              {results.length > 1 && (
+                <>
+                  <p className="text-xs mb-2" style={{ color: "var(--soc-muted)" }}>
+                    Risk Score Timeline
+                  </p>
+
+                  <TimelineChart events={results} height={200} />
+                </>
+              )}
+
+              {focusResult.signals && focusResult.signals.length > 0 && (
+                <>
+                  <p
+                    className="text-xs mt-4 mb-2"
+                    style={{ color: "var(--soc-muted)" }}
+                  >
+                    Signal Breakdown
+                  </p>
+
+                  <SignalBreakdownChart signals={focusResult.signals} />
+                </>
+              )}
+
+              {lastResult.mode === "playback" && (
+                <div
+                  className="mt-4 p-3 rounded text-xs"
+                  style={{
+                    background: "rgba(16,185,129,0.08)",
+                    border: "1px solid rgba(16,185,129,0.2)",
+                  }}
+                >
+                  <p style={{ color: "var(--soc-green)" }}>
+                    Alert fired 14 hours before AFM froze 9.7M USDT
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
