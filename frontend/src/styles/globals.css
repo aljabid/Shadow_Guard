@@ -1,0 +1,325 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ═══════════════════════════════════════════════════
+   THEME VARIABLES
+   Three themes: dark (default), light, cream
+═══════════════════════════════════════════════════ */
+
+:root,
+[data-theme="dark"] {
+  --soc-bg: #0a0e1a;
+  --soc-surface: #111827;
+  --soc-surface-2: #1a2234;
+  --soc-border: #1f2937;
+  --soc-accent: #e94560;
+  --soc-amber: #f59e0b;
+  --soc-green: #10b981;
+  --soc-blue: #3b82f6;
+  --soc-text: #e5e7eb;
+  --soc-muted: #6b7280;
+  /* hover helpers */
+  --sg-hover-filter: brightness(1.15);
+  --sg-hover-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
+  --sg-hover-border: rgba(255, 255, 255, 0.14);
+  --sg-card-lift: -1px;
+}
+
+[data-theme="light"] {
+  --soc-bg: #f0f4f8;
+  --soc-surface: #ffffff;
+  --soc-surface-2: #f1f5f9;
+  --soc-border: #dde4ed;
+  --soc-accent: #dc2626;
+  --soc-amber: #d97706;
+  --soc-green: #059669;
+  --soc-blue: #2563eb;
+  --soc-text: #0f172a;
+  --soc-muted: #64748b;
+  --sg-hover-filter: brightness(0.94);
+  --sg-hover-shadow: 0 4px 20px rgba(15, 23, 42, 0.12);
+  --sg-hover-border: rgba(15, 23, 42, 0.18);
+  --sg-card-lift: -1px;
+}
+
+[data-theme="cream"] {
+  --soc-bg: #faf6f0;
+  --soc-surface: #fdf9f4;
+  --soc-surface-2: #f5ede0;
+  --soc-border: #d6c4a8;
+  --soc-accent: #b45309;
+  --soc-amber: #92400e;
+  --soc-green: #065f46;
+  --soc-blue: #1d4ed8;
+  --soc-text: #1c1008;
+  --soc-muted: #7c5c3e;
+  --sg-hover-filter: brightness(0.93);
+  --sg-hover-shadow: 0 4px 20px rgba(139, 90, 43, 0.18);
+  --sg-hover-border: rgba(28, 16, 8, 0.18);
+  --sg-card-lift: -1px;
+}
+
+/* ═══════════════════════════════════════════════════
+   BASE RESET
+═══════════════════════════════════════════════════ */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--soc-bg);
+  color: var(--soc-text);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* ═══════════════════════════════════════════════════
+   SCROLLBAR
+═══════════════════════════════════════════════════ */
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--soc-surface); }
+::-webkit-scrollbar-thumb { background: var(--soc-border); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--soc-muted); }
+
+/* ═══════════════════════════════════════════════════
+   CARD  (respects theme via CSS vars)
+═══════════════════════════════════════════════════ */
+
+.card {
+  background: var(--soc-surface);
+  border: 1px solid var(--soc-border);
+  border-radius: 8px;
+  padding: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  border-color: var(--sg-hover-border);
+  box-shadow: var(--sg-hover-shadow);
+}
+
+/* ═══════════════════════════════════════════════════
+   HOVER EFFECTS — universal via filter
+   filter: brightness() works even with inline styles
+═══════════════════════════════════════════════════ */
+
+/* Buttons ─────────────────────────────────────── */
+button {
+  transition:
+    filter 0.15s ease,
+    transform 0.12s ease,
+    opacity 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+button:not(:disabled):hover  { filter: var(--sg-hover-filter); }
+button:not(:disabled):active { transform: scale(0.97); }
+
+/* Links ────────────────────────────────────────── */
+a {
+  transition: filter 0.15s ease, opacity 0.15s ease, color 0.15s ease;
+}
+a:hover { filter: var(--sg-hover-filter); }
+
+/* Form inputs ──────────────────────────────────── */
+input, select, textarea {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+/* Generic interactive rows / list items ────────── */
+.sg-row {
+  transition: filter 0.15s ease, background-color 0.15s ease;
+  cursor: pointer;
+}
+.sg-row:hover { filter: var(--sg-hover-filter); }
+
+/* Clickable cards with lift ────────────────────── */
+.sg-card-lift {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+.sg-card-lift:hover {
+  border-color: var(--sg-hover-border);
+  box-shadow: var(--sg-hover-shadow);
+  transform: translateY(var(--sg-card-lift));
+}
+
+/* ═══════════════════════════════════════════════════
+   LIGHT / CREAM — cascade overrides for inline-styled panels
+   !important is required because module components use
+   inline style={{ background: "#080d18" }} patterns.
+═══════════════════════════════════════════════════ */
+
+/* Module panel root divs (direct children of <main>) */
+[data-theme="light"] main > div,
+[data-theme="cream"] main > div {
+  background: var(--soc-bg) !important;
+}
+
+/* Large content cards: target rounded divs that ALSO have a
+   content padding class (p-3, p-4, p-5). Small icon containers
+   use p-1 / p-1.5 / p-2 / or no padding at all — they won't match. */
+[data-theme="light"] main div.rounded-lg.p-3,
+[data-theme="light"] main div.rounded-lg.p-4,
+[data-theme="light"] main div.rounded-lg.p-5,
+[data-theme="light"] main div.rounded-xl.p-3,
+[data-theme="light"] main div.rounded-xl.p-4,
+[data-theme="light"] main div.rounded-xl.p-5,
+[data-theme="cream"] main div.rounded-lg.p-3,
+[data-theme="cream"] main div.rounded-lg.p-4,
+[data-theme="cream"] main div.rounded-lg.p-5,
+[data-theme="cream"] main div.rounded-xl.p-3,
+[data-theme="cream"] main div.rounded-xl.p-4,
+[data-theme="cream"] main div.rounded-xl.p-5 {
+  background: var(--soc-surface) !important;
+  border-color: var(--soc-border) !important;
+  /* color !important only on the container itself so child
+     inline-styled accent text keeps its own color */
+}
+
+/* Also override the space-y / content wrappers that hold the cards */
+[data-theme="light"] main div.space-y-4,
+[data-theme="light"] main div.space-y-3,
+[data-theme="cream"] main div.space-y-4,
+[data-theme="cream"] main div.space-y-3 {
+  color: var(--soc-text);
+}
+
+/* Sidebar section labels and inline text */
+[data-theme="light"] aside,
+[data-theme="cream"] aside {
+  color: var(--soc-text);
+}
+
+/* ── Text color normalization ─────────────────────────────────────────────────
+   Many components hardcode light text colours (#e5e7eb, #d1d5db) designed for
+   dark backgrounds.  In light/cream those are near-invisible.  We override them
+   by matching the browser-serialised RGB value that React injects into the DOM.
+   Both hex (#e5e7eb) and rgb(…) forms are matched for cross-browser safety.
+   The selector is narrow enough that it will NOT match accent-coloured badges
+   (their RGB triples are different) but WILL match primary + secondary text.
+──────────────────────────────────────────────────────────────────────────────── */
+
+/* #e5e7eb  = rgb(229, 231, 235) — primary "light" text */
+[data-theme="light"] [style*="color: rgb(229, 231, 235)"],
+[data-theme="light"] [style*="color:#e5e7eb"],
+[data-theme="light"] [style*="color: #e5e7eb"],
+[data-theme="cream"]  [style*="color: rgb(229, 231, 235)"],
+[data-theme="cream"]  [style*="color:#e5e7eb"],
+[data-theme="cream"]  [style*="color: #e5e7eb"] {
+  color: var(--soc-text) !important;
+}
+
+/* #d1d5db  = rgb(209, 213, 219) — secondary near-white text */
+[data-theme="light"] [style*="color: rgb(209, 213, 219)"],
+[data-theme="light"] [style*="color:#d1d5db"],
+[data-theme="light"] [style*="color: #d1d5db"],
+[data-theme="cream"]  [style*="color: rgb(209, 213, 219)"],
+[data-theme="cream"]  [style*="color:#d1d5db"],
+[data-theme="cream"]  [style*="color: #d1d5db"] {
+  color: var(--soc-text) !important;
+}
+
+/* #9ca3af  = rgb(156, 163, 175) — muted text (readable on dark, faint on white) */
+[data-theme="light"] [style*="color: rgb(156, 163, 175)"],
+[data-theme="light"] [style*="color:#9ca3af"],
+[data-theme="light"] [style*="color: #9ca3af"],
+[data-theme="cream"]  [style*="color: rgb(156, 163, 175)"],
+[data-theme="cream"]  [style*="color:#9ca3af"],
+[data-theme="cream"]  [style*="color: #9ca3af"] {
+  color: var(--soc-muted) !important;
+}
+
+/* #6b7280  = rgb(107, 114, 128) — already readable on white, but remap to var */
+[data-theme="light"] [style*="color: rgb(107, 114, 128)"],
+[data-theme="light"] [style*="color:#6b7280"],
+[data-theme="light"] [style*="color: #6b7280"],
+[data-theme="cream"]  [style*="color: rgb(107, 114, 128)"],
+[data-theme="cream"]  [style*="color:#6b7280"],
+[data-theme="cream"]  [style*="color: #6b7280"] {
+  color: var(--soc-muted) !important;
+}
+
+/* #4b5563  = rgb(75, 85, 99) — dark-on-dark detail text */
+[data-theme="light"] [style*="color: rgb(75, 85, 99)"],
+[data-theme="light"] [style*="color:#4b5563"],
+[data-theme="light"] [style*="color: #4b5563"],
+[data-theme="cream"]  [style*="color: rgb(75, 85, 99)"],
+[data-theme="cream"]  [style*="color:#4b5563"],
+[data-theme="cream"]  [style*="color: #4b5563"] {
+  color: var(--soc-muted) !important;
+}
+
+/* #374151  = rgb(55, 65, 81) — very dark gray used for section labels */
+[data-theme="light"] [style*="color: rgb(55, 65, 81)"],
+[data-theme="light"] [style*="color:#374151"],
+[data-theme="light"] [style*="color: #374151"],
+[data-theme="cream"]  [style*="color: rgb(55, 65, 81)"],
+[data-theme="cream"]  [style*="color:#374151"],
+[data-theme="cream"]  [style*="color: #374151"] {
+  color: var(--soc-text) !important;
+}
+
+/* Hardcoded dark backgrounds used in tabs/inputs/secondary panels.
+   Covers both `background:` shorthand and `background-color:` longhand
+   since React may serialize either way depending on the prop used. */
+[data-theme="light"] [style*="background: rgb(13, 22, 38)"],
+[data-theme="light"] [style*="background: #0d1626"],
+[data-theme="light"] [style*="background-color: rgb(13, 22, 38)"],
+[data-theme="light"] [style*="background: rgb(8, 13, 24)"],
+[data-theme="light"] [style*="background: #080d18"],
+[data-theme="light"] [style*="background-color: rgb(8, 13, 24)"],
+[data-theme="light"] [style*="background: rgb(13, 20, 32)"],
+[data-theme="light"] [style*="background: #0d1420"],
+[data-theme="light"] [style*="background-color: rgb(13, 20, 32)"],
+[data-theme="light"] [style*="background: rgb(17, 24, 39)"],
+[data-theme="light"] [style*="background: #111827"],
+[data-theme="light"] [style*="background-color: rgb(17, 24, 39)"],
+[data-theme="cream"]  [style*="background: rgb(13, 22, 38)"],
+[data-theme="cream"]  [style*="background: #0d1626"],
+[data-theme="cream"]  [style*="background-color: rgb(13, 22, 38)"],
+[data-theme="cream"]  [style*="background: rgb(8, 13, 24)"],
+[data-theme="cream"]  [style*="background: #080d18"],
+[data-theme="cream"]  [style*="background-color: rgb(8, 13, 24)"],
+[data-theme="cream"]  [style*="background: rgb(13, 20, 32)"],
+[data-theme="cream"]  [style*="background: #0d1420"],
+[data-theme="cream"]  [style*="background-color: rgb(13, 20, 32)"],
+[data-theme="cream"]  [style*="background: rgb(17, 24, 39)"],
+[data-theme="cream"]  [style*="background: #111827"],
+[data-theme="cream"]  [style*="background-color: rgb(17, 24, 39)"] {
+  background: var(--soc-surface-2) !important;
+  border-color: var(--soc-border) !important;
+}
+
+/* Hardcoded dark border colors */
+[data-theme="light"] [style*="border: 1px solid rgb(26, 38, 64)"],
+[data-theme="light"] [style*="border: 1px solid #1a2640"],
+[data-theme="cream"]  [style*="border: 1px solid rgb(26, 38, 64)"],
+[data-theme="cream"]  [style*="border: 1px solid #1a2640"] {
+  border-color: var(--soc-border) !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   ANIMATIONS
+═══════════════════════════════════════════════════ */
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.animate-spin { animation: spin 0.8s linear infinite; }
